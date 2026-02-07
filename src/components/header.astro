@@ -9,6 +9,7 @@ import discord from '../assets/discord.svg'
 import telegram from '../assets/telegram.svg'
 import mastodon from '../assets/mastodon.svg'
 import bluesky from '../assets/bluesky.svg'
+import email from '../assets/email.svg'
 
 const { SITE_URL, RSS_URL } = Astro.locals
 const { channel } = Astro.props
@@ -75,6 +76,14 @@ const hideDescription = getEnv(import.meta.env, Astro, 'HIDE_DESCRIPTION')
         </a>
       )
     }
+
+    <a href="mailto:xxjss@hotmail.com" title="Email" target="_blank">
+      <img {...email} alt="Email" class="social-icon" width="1em" />
+    </a>
+
+    <a href="https://github.com/myogg" title="GitHub" target="_blank">
+      <img {...github} alt="GitHub" class="social-icon" width="1em" />
+    </a>
 
     {
       DISCORD && DISCORD.length > 0 && (
