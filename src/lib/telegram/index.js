@@ -231,7 +231,7 @@ async function getPost($, item, { channel, staticProxy, index = 0, reactionsEnab
   const id = $(item).attr('data-post')?.replace(new RegExp(`${channel}/`, 'i'), '')
 
   const tags = $(content).find('a[href^="?q="]')?.each((_index, a) => {
-    $(a)?.attr('href', `/search/${encodeURIComponent($(a)?.text())}`)
+    $(a)?.attr('href', `/search/${$(a)?.text()?.replace('#', '')}`)
   })?.map((_index, a) => $(a)?.text()?.replace('#', ''))?.get()
 
   return {

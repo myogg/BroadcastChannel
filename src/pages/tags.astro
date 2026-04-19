@@ -24,7 +24,7 @@ const tags = (getEnv(import.meta.env, Astro, 'TAGS') || '').split(',')
     {
       tags.map((tag: string) => (
         <div class="tag-cloud-item">
-          <a href={`/search/%23${tag}`} class="tag">
+          <a href={`/search/${tag}`} class="tag">
             {tag}
           </a>
           {/* <span class="tag-cloud-item-count">0</span> */}

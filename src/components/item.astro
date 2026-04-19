@@ -57,7 +57,7 @@ const timeago = datetime.isBefore(dayjs().subtract(1, 'w')) ? datetime.format('H
       <div class="tag-box" style={post.content.length === 0 ? 'padding-top: 30px;' : ''}>
         <div class="tag-icon" />
         {post.tags.map((tag) => (
-          <a href={`/search/%23${tag}`} title={tag} class="tag">
+          <a href={`/search/${tag}`} title={tag} class="tag">
             {tag}
           </a>
         ))}
