@@ -17,7 +17,7 @@ const COMMENTS = getEnv(import.meta.env, Astro, 'COMMENTS')
 const REACTIONS = getEnv(import.meta.env, Astro, 'REACTIONS')
 
 const datetime = dayjs(post.datetime).tz(timezone)
-const timeago = datetime.isBefore(dayjs().subtract(1, 'w')) ? datetime.format('HH:mm · ll · ddd') : datetime.fromNow()
+const timeago = datetime.format('MMM D YYYY')
 ---
 
 <div class="item" style={{ 'view-transition-name': `post-${post.id}` }}>
