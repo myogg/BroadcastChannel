@@ -1,8 +1,17 @@
 ---
 import PostsPage from '../components/PostsPage.astro'
+import DirectorySection from '../components/DirectorySection.astro'
 import { getChannelInfo } from '../lib/telegram'
+import { getEnv, parseCsvList } from '../lib/env'
 
 const channel = await getChannelInfo()
+const tags = parseCsvList(getEnv(import.meta.env, 'TAGS'))
+const tagItems = tags.map((tag) => ({
+  href: `/search/result?q=${encodeURIComponent(`#${tag}`)}`,
+  label: tag,
+}))
 ---
 
-<PostsPage channel={channel} after={false} pageClass="feed" pageHeading={channel.title} pageType="home" />
+<PostsPage channel={channel} after={false} pageClass="feed" pageHeading={channel.title} pageType="home">
+  {tagItems.length > 0 && <DirectorySection slot="header" id="tags" title="Tags" items={tagItems} />}
+</PostsPage>
