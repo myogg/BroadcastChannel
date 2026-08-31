@@ -2,6 +2,14 @@ import type { Reaction } from '../types'
 
 export const paidReactionClass = 'reaction-paid'
 
+export interface PostTimeResult {
+  relative: boolean
+  text: string
+  month?: string
+  day?: string
+  year?: string
+}
+
 const weekInMs = 7 * 24 * 60 * 60 * 1000
 
 function resolveLocale(locale = 'en'): string {
@@ -37,7 +45,7 @@ function formatRelativeTime(date: Date, locale: string): string {
   return formatter.format(roundRelativeTime(diffInMs, 24 * 60 * 60 * 1000), 'day')
 }
 
-function formatAbsoluteTime(date: Date, timezone: string | undefined, locale: string): string {
+function formatAbsoluteTime(date: Date, timezone: string | undefined, locale: string): PostTimeResult {
   const month = new Intl.DateTimeFormat(locale, {
     month: 'short',
     timeZone: timezone,
@@ -51,17 +59,23 @@ function formatAbsoluteTime(date: Date, timezone: string | undefined, locale: st
     timeZone: timezone,
   }).format(date)
 
-  return `${month} ${day}, ${year}`
+  return {
+    relative: false,
+    text: `${month} ${day}, ${year}`,
+    month,
+    day,
+    year,
+  }
 }
 
-export function formatPostTime(datetime: string, timezone?: string, locale?: string): string {
+export function formatPostTime(datetime: string, timezone?: string, locale?: string): PostTimeResult {
   const resolvedLocale = resolveLocale(locale)
   const postTime = new Date(datetime)
   const isOlderThanWeek = postTime.getTime() < Date.now() - weekInMs
 
   return isOlderThanWeek
     ? formatAbsoluteTime(postTime, timezone, resolvedLocale)
-    : formatRelativeTime(postTime, resolvedLocale)
+    : { relative: true, text: formatRelativeTime(postTime, resolvedLocale) }
 }
 
 export function getTagHref(tag: string): string {

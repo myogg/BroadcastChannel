@@ -29,7 +29,12 @@
   .post-meta {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
     font-size: 0.82em;
+  }
+
+  .date-month {
+    color: #c0392b;
   }
 
   .post-meta p {

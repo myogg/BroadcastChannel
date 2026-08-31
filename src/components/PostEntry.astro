@@ -44,14 +44,22 @@ const hasTags = post.tags.length > 0
     <span class="timeline-dot" aria-hidden="true"></span>
     <p>
       <a href={permalink} title={post.datetime}>
-        <time datetime={post.datetime} title={timeago}>{timeago}</time>
+        <time datetime={post.datetime} title={timeago.text}>
+          {timeago.relative
+            ? timeago.text
+            : <><span class="date-month">{timeago.month}</span> {timeago.day}, {timeago.year}</>}
+        </time>
       </a>
     </p>
   </div>
   {hasContent && <div class="post-content content" set:html={contentHtml} />}
   <p class="tg-message-meta">
     <a href={permalink} title={post.datetime}>
-      <time datetime={post.datetime} title={timeago}>{timeago}</time>
+      <time datetime={post.datetime} title={timeago.text}>
+        {timeago.relative
+          ? timeago.text
+          : <><span class="date-month">{timeago.month}</span> {timeago.day}, {timeago.year}</>}
+      </time>
     </a>
   </p>
   {
