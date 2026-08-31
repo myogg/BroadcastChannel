@@ -45,16 +45,16 @@ function formatRelativeTime(date: Date, locale: string): string {
   return formatter.format(roundRelativeTime(diffInMs, 24 * 60 * 60 * 1000), 'day')
 }
 
-function formatAbsoluteTime(date: Date, timezone: string | undefined, locale: string): PostTimeResult {
-  const month = new Intl.DateTimeFormat(locale, {
+function formatAbsoluteTime(date: Date, timezone: string | undefined): PostTimeResult {
+  const month = new Intl.DateTimeFormat('en', {
     month: 'short',
     timeZone: timezone,
   }).format(date)
-  const day = new Intl.DateTimeFormat(locale, {
+  const day = new Intl.DateTimeFormat('en', {
     day: 'numeric',
     timeZone: timezone,
   }).format(date)
-  const year = new Intl.DateTimeFormat(locale, {
+  const year = new Intl.DateTimeFormat('en', {
     year: 'numeric',
     timeZone: timezone,
   }).format(date)
@@ -69,13 +69,9 @@ function formatAbsoluteTime(date: Date, timezone: string | undefined, locale: st
 }
 
 export function formatPostTime(datetime: string, timezone?: string, locale?: string): PostTimeResult {
-  const resolvedLocale = resolveLocale(locale)
   const postTime = new Date(datetime)
-  const isOlderThanWeek = postTime.getTime() < Date.now() - weekInMs
 
-  return isOlderThanWeek
-    ? formatAbsoluteTime(postTime, timezone, resolvedLocale)
-    : { relative: true, text: formatRelativeTime(postTime, resolvedLocale) }
+  return formatAbsoluteTime(postTime, timezone)
 }
 
 export function getTagHref(tag: string): string {
