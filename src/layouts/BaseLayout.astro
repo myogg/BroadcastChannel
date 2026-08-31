@@ -4,6 +4,7 @@ import { SEO } from 'astro-seo'
 import BackToTop from '../components/BackToTop.astro'
 import SiteHeader from '../components/SiteHeader.astro'
 import SiteNavigation from '../components/SiteNavigation.astro'
+import SiteSidebar from '../components/SiteSidebar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { getEnv, parseDelimitedItems } from '../lib/env'
 import { getPageSeo } from '../lib/seo'
@@ -76,9 +77,12 @@ const skipLinkText = 'Skip to main content'
         tagsPathname={tagsPathname}
       />
     </SiteHeader>
-    <main id="main-content">
-      <slot />
-    </main>
+    <div class="layout-body">
+      <main id="main-content">
+        <slot />
+      </main>
+      <SiteSidebar searchAction={searchAction} googleSearchSite={GOOGLE_SEARCH_SITE} />
+    </div>
     <SiteFooter />
     <BackToTop />
     <Fragment set:html={FOOTER_INJECT} />

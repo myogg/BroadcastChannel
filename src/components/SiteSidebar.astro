@@ -1,0 +1,12 @@
+---
+import SearchForm from './SearchForm.astro'
+
+const { searchAction, googleSearchSite } = Astro.props as {
+  searchAction: string
+  googleSearchSite?: string
+}
+---
+
+<aside class="site-sidebar">
+  <SearchForm action={searchAction} googleSearchSite={googleSearchSite} />
+</aside>

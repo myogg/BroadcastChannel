@@ -38,22 +38,20 @@ function formatRelativeTime(date: Date, locale: string): string {
 }
 
 function formatAbsoluteTime(date: Date, timezone: string | undefined, locale: string): string {
-  const time = new Intl.DateTimeFormat(locale, {
-    hour: '2-digit',
-    hourCycle: 'h23',
-    minute: '2-digit',
+  const month = new Intl.DateTimeFormat(locale, {
+    month: 'short',
     timeZone: timezone,
   }).format(date)
-  const dateText = new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
+  const day = new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
     timeZone: timezone,
   }).format(date)
-  const weekday = new Intl.DateTimeFormat(locale, {
+  const year = new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
     timeZone: timezone,
-    weekday: 'short',
   }).format(date)
 
-  return `${time} · ${dateText} · ${weekday}`
+  return `${month} ${day}, ${year}`
 }
 
 export function formatPostTime(datetime: string, timezone?: string, locale?: string): string {

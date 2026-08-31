@@ -1,5 +1,13 @@
 @layer components {
   @media (max-width: 37.5rem) {
+    .layout-body {
+      grid-template-columns: 1fr;
+    }
+
+    .site-sidebar {
+      display: none;
+    }
+
     .site-header {
       grid-template-columns: auto minmax(0, 1fr);
       align-items: flex-start;

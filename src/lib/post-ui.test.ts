@@ -16,11 +16,11 @@ describe('post UI helpers', () => {
   })
 
   it('formats older post time with timezone-aware absolute parts', () => {
-    expect(formatPostTime('2020-01-02T03:04:05.000Z', 'America/New_York', 'en')).toBe('22:04 · Jan 1, 2020 · Wed')
+    expect(formatPostTime('2020-01-02T03:04:05.000Z', 'America/New_York', 'en')).toBe('Jan 1, 2020')
   })
 
   it('falls back to english for invalid locales', () => {
-    expect(formatPostTime('2020-01-02T03:04:05.000Z', 'UTC', 'unknown-locale')).toBe('03:04 · Jan 2, 2020 · Thu')
+    expect(formatPostTime('2020-01-02T03:04:05.000Z', 'UTC', 'unknown-locale')).toBe('Jan 2, 2020')
   })
 
   it('exposes a stable semantic class for paid reactions', () => {
