@@ -12,6 +12,7 @@ export interface SocialLinkOptions {
   podcast?: string
   twitter?: string
   github?: string
+  email?: string
   telegram?: string
   discord?: string
   mastodon?: string
@@ -56,6 +57,16 @@ export function buildSocialLinks(options: SocialLinkOptions): SocialLink[] {
       title: 'GitHub',
       label: 'GitHub',
       icon: 'ri:github-line',
+      rel: 'noopener noreferrer',
+    })
+  }
+
+  if (options.email) {
+    links.push({
+      href: `mailto:${options.email}`,
+      title: 'Email',
+      label: 'Email',
+      icon: 'ri:mail-line',
       rel: 'noopener noreferrer',
     })
   }

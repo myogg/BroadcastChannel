@@ -1,14 +1,11 @@
 ---
 import type { NavItem } from '../types'
-import SearchForm from './SearchForm.astro'
 
 const {
   channelTitle,
   currentPathname,
-  googleSearchSite,
   linksPathname,
   navs = [],
-  searchAction,
   showLinks,
   showTags,
   siteRootPathname,
@@ -17,10 +14,8 @@ const {
 } = Astro.props as {
   channelTitle?: string
   currentPathname: string
-  googleSearchSite?: string
   linksPathname: string
   navs?: NavItem[]
-  searchAction: string
   showLinks?: boolean
   showTags?: boolean
   siteRootPathname: string
@@ -72,7 +67,4 @@ const primaryNavItems = [
       ))
     }
   </ul>
-  <div class="mobile-search-nav">
-    <SearchForm action={searchAction} googleSearchSite={googleSearchSite} />
-  </div>
 </nav>

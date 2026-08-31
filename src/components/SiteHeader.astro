@@ -11,6 +11,7 @@ const { channel } = Astro.props
 const PODCAST = getEnv(import.meta.env, 'PODCAST')
 const TWITTER = getEnv(import.meta.env, 'TWITTER')
 const GITHUB = getEnv(import.meta.env, 'GITHUB')
+const EMAIL = getEnv(import.meta.env, 'EMAIL')
 const TELEGRAM = getEnv(import.meta.env, 'TELEGRAM')
 const DISCORD = getEnv(import.meta.env, 'DISCORD')
 const MASTODON = getEnv(import.meta.env, 'MASTODON')
@@ -25,6 +26,7 @@ const socialLinks = buildSocialLinks({
   podcast: PODCAST,
   twitter: TWITTER,
   github: GITHUB,
+  email: EMAIL,
   telegram: TELEGRAM,
   discord: DISCORD,
   mastodon: MASTODON,
