@@ -1,12 +1,37 @@
 ---
 import SearchForm from './SearchForm.astro'
 
-const { searchAction, googleSearchSite } = Astro.props as {
+interface TagItem {
+  href: string
+  label: string
+  size: number
+}
+
+const {
+  searchAction,
+  googleSearchSite,
+  tags = [],
+} = Astro.props as {
   searchAction: string
   googleSearchSite?: string
+  tags?: TagItem[]
 }
 ---
 
 <aside class="site-sidebar">
   <SearchForm action={searchAction} googleSearchSite={googleSearchSite} />
+  {
+    tags.length > 0 && (
+      <div class="sidebar-tags">
+        <h2>Tags</h2>
+        <div class="tags" role="list">
+          {tags.map((tag) => (
+            <a href={tag.href} style={`font-size: ${tag.size}em`} role="listitem">
+              {tag.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
 </aside>

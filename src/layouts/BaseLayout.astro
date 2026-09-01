@@ -35,6 +35,24 @@ const searchAction = GOOGLE_SEARCH_SITE ? 'https://www.google.com/search' : `${S
 const HEADER_INJECT = getEnv(import.meta.env, 'HEADER_INJECT')
 const FOOTER_INJECT = getEnv(import.meta.env, 'FOOTER_INJECT')
 const TAGS = getEnv(import.meta.env, 'TAGS')
+const sidebarTags = (() => {
+  const counts = new Map<string, number>()
+  for (const post of channel.posts) {
+    for (const tag of post.tags) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1)
+    }
+  }
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 50)
+  if (sorted.length === 0) return []
+  const min = sorted[sorted.length - 1][1]
+  const max = sorted[0][1]
+  const range = max - min || 1
+  return sorted.map(([tag, count]) => ({
+    href: `/search/result?q=${encodeURIComponent(`#${tag}`)}`,
+    label: tag,
+    size: 0.75 + ((count - min) / range) * 0.45,
+  }))
+})()
 const LINKS = getEnv(import.meta.env, 'LINKS')
 const navs = parseDelimitedItems(getEnv(import.meta.env, 'NAVS'))
 
@@ -79,7 +97,7 @@ const skipLinkText = 'Skip to main content'
       <main id="main-content">
         <slot />
       </main>
-      <SiteSidebar searchAction={searchAction} googleSearchSite={GOOGLE_SEARCH_SITE} />
+      <SiteSidebar searchAction={searchAction} googleSearchSite={GOOGLE_SEARCH_SITE} tags={sidebarTags} />
     </div>
     <SiteFooter />
     <BackToTop />

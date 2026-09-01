@@ -24,6 +24,31 @@
     display: none;
   }
 
+  .sidebar-tags {
+    margin-top: 1.5rem;
+  }
+
+  .sidebar-tags h2 {
+    margin: 0 0 0.5rem;
+    font-size: 0.9em;
+    color: var(--muted-color);
+  }
+
+  .sidebar-tags .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: baseline;
+  }
+
+  .sidebar-tags a {
+    text-decoration: none;
+  }
+
+  .sidebar-tags a:hover {
+    text-decoration: underline;
+  }
+
   #main-content {
     min-width: 0;
   }
