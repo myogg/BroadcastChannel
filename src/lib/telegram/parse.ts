@@ -8,13 +8,14 @@ import { renderRawContent } from './renderers/raw'
 import { normalizeUrlAttributes } from './url'
 
 const TITLE_PREVIEW_REGEX = /^.*?(?=[。\n]|http\S)/g
+const HASHTAG_REGEX = /#([\p{L}\p{N}_]+)/gu
 
 function isNonEmptyString(value: string | null | undefined): value is string {
   return Boolean(value)
 }
 
 function rewriteTagLinksAndCollectTags($: CheerioAPI, content: MessageSelection): string[] {
-  const tags: string[] = []
+  const tagSet = new Set<string>()
 
   for (const tagNode of content.find('a[href^="?q="]').toArray()) {
     const tagLink = $(tagNode)
@@ -24,11 +25,16 @@ function rewriteTagLinksAndCollectTags($: CheerioAPI, content: MessageSelection)
 
     const normalizedTag = tagText.replace('#', '')
     if (normalizedTag) {
-      tags.push(normalizedTag)
+      tagSet.add(normalizedTag)
     }
   }
 
-  return tags
+  const text = content.text()
+  for (const match of text.matchAll(HASHTAG_REGEX)) {
+    tagSet.add(match[1])
+  }
+
+  return [...tagSet]
 }
 
 function renderPostContent(
