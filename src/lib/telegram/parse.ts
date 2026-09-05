@@ -136,7 +136,7 @@ export async function extractPost($: CheerioAPI, item: AnyNode | null, options: 
     { index, telegramHost, staticProxy, normalizeUrls: false },
   )
   const contentText = content.text()
-  const title = contentText.match(TITLE_PREVIEW_REGEX)?.[0] ?? contentText
+  const title = (contentText.match(TITLE_PREVIEW_REGEX)?.[0] ?? contentText).slice(0, 80)
   const id = message.attr('data-post')?.replace(new RegExp(`${channel}/`, 'i'), '') ?? ''
   const tags = rewriteTagLinksAndCollectTags($, content)
   const contentHtml = renderPostContent($, message, content, { channel, staticProxy, index, id, title })
