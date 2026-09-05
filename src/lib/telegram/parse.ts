@@ -10,13 +10,16 @@ import { normalizeUrlAttributes } from './url'
 const TITLE_PREVIEW_REGEX = /^.*?(?=[。\n]|http\S)/g
 const HASHTAG_REGEX = /#([\p{L}\p{N}_]+)/gu
 const MAX_TAG_LENGTH = 10
+const MAX_TAG_UTF16_LENGTH = 20
 
 function isValidTag(tag: string): boolean {
   if (!tag)
     return false
   if (/^\d+$/.test(tag))
     return false
-  if (tag.length > MAX_TAG_LENGTH)
+  if (tag.length > MAX_TAG_UTF16_LENGTH)
+    return false
+  if ([...tag].length > MAX_TAG_LENGTH)
     return false
   return true
 }
