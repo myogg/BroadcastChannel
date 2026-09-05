@@ -20,7 +20,7 @@ const contentSanitizeOptions = {
     ],
     'a': ['href', 'name', 'target', 'rel', 'title', 'class'],
     'audio': ['src', 'controls', 'preload'],
-    'button': ['type', 'class', 'popovertarget', 'popovertargetaction', 'aria-label'],
+    'button': ['type', 'class', 'popovertarget', 'popovertargetaction', 'aria-label', 'data-lightbox', 'data-index'],
     'img': ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'class'],
     'input': ['type', 'id', 'class', 'aria-label', 'aria-controls'],
     'label': ['for', 'class'],

@@ -5,7 +5,8 @@ import { getImageLoading, inferImageDimensions, STYLE_URL_REGEX } from './utils'
 
 export function getImages($: CheerioAPI, message: MessageSelection, options: MessageAssetOptions): string {
   const { staticProxy = '', id = '', index = 0, title = '' } = options
-  const fragments: string[] = []
+  const previewButtons: string[] = []
+  const slides: string[] = []
   const loading = getImageLoading(index)
   const safeTitle = escapeHtmlAttribute(title || 'Image from post')
   const safePreviewLabel = escapeHtmlAttribute(title ? `Open image preview: ${title}` : 'Open image preview')
@@ -18,44 +19,44 @@ export function getImages($: CheerioAPI, message: MessageSelection, options: Mes
       continue
     }
 
-    const popoverId = `modal-${id}-${photoIndex}`
     const { width, height } = inferImageDimensions($, photoNode)
-    fragments.push(`
-      <button
-        type="button"
-        class="image-preview-button image-preview-wrap"
-        popovertarget="${popoverId}"
-        popovertargetaction="show"
-        aria-label="${safePreviewLabel}"
-      >
-        <img src="${getProxiedUrl(staticProxy, imageUrl)}" alt="${safeTitle}" width="${width}" height="${height}" loading="${loading}" />
-      </button>
-      <div class="modal" id="${popoverId}" popover="auto" aria-label="Image preview">
-        <button
-          type="button"
-          class="modal__backdrop"
-          popovertarget="${popoverId}"
-          popovertargetaction="hide"
-          aria-label="${safeCloseLabel}"
-        ></button>
-        <button
-          type="button"
-          class="modal__close"
-          popovertarget="${popoverId}"
-          popovertargetaction="hide"
-          aria-label="${safeCloseLabel}"
-        >&times;</button>
-        <div class="modal__surface">
-          <img class="modal-img" src="${getProxiedUrl(staticProxy, imageUrl)}" alt="${safeTitle}" width="${width}" height="${height}" loading="lazy" />
-        </div>
-      </div>
-    `)
+    const proxiedUrl = getProxiedUrl(staticProxy, imageUrl)
+
+    previewButtons.push(
+      `<button type="button" class="image-preview-button image-preview-wrap" data-lightbox="lightbox-${id}" data-index="${photoIndex}" aria-label="${safePreviewLabel}">`
+      + `<img src="${proxiedUrl}" alt="${safeTitle}" width="${width}" height="${height}" loading="${loading}" />`
+      + '</button>',
+    )
+
+    slides.push(
+      '<div class="lightbox__slide">'
+      + `<img class="modal-img" src="${proxiedUrl}" alt="${safeTitle}" width="${width}" height="${height}" loading="lazy" />`
+      + '</div>',
+    )
   }
 
-  if (!fragments.length) {
+  if (!previewButtons.length) {
     return ''
   }
 
-  const layoutClass = fragments.length % 2 === 0 ? 'image-list-even' : 'image-list-odd'
-  return `<div class="image-list-container ${layoutClass}">${fragments.join('')}</div>`
+  const lightboxId = `lightbox-${id}`
+  const layoutClass = previewButtons.length % 2 === 0 ? 'image-list-even' : 'image-list-odd'
+  const hasMultiple = previewButtons.length > 1
+
+  const lightboxHtml = `<div class="modal lightbox" id="${lightboxId}" popover="auto" aria-label="Image preview">`
+    + `<button type="button" class="modal__backdrop" aria-label="${safeCloseLabel}"></button>`
+    + `<button type="button" class="modal__close" aria-label="${safeCloseLabel}">&times;</button>`
+    + (hasMultiple
+      ? `<div class="lightbox__counter"><span class="lightbox__counter-current">1</span> / <span class="lightbox__counter-total">${previewButtons.length}</span></div>`
+        + '<button type="button" class="lightbox__prev" aria-label="Previous image">&lsaquo;</button>'
+        + '<button type="button" class="lightbox__next" aria-label="Next image">&rsaquo;</button>'
+      : '')
+    + '<div class="lightbox__viewport">'
+    + '<div class="lightbox__track">'
+    + slides.join('')
+    + '</div>'
+    + '</div>'
+    + '</div>'
+
+  return `<div class="image-list-container ${layoutClass}">${previewButtons.join('')}${lightboxHtml}</div>`
 }

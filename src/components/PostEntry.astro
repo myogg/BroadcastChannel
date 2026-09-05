@@ -267,6 +267,104 @@ const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
           window.addEventListener('beforeunload', stopReading);
         }).call(document.currentScript);
       </script>
+      <script is:inline data-lightbox>
+        (function() {
+          var el = document.currentScript;
+          var article = el ? el.closest('.post-entry') : null;
+          if (!article) return;
+          var lightbox = article.querySelector('.lightbox');
+          if (!lightbox) return;
+
+          var track = lightbox.querySelector('.lightbox__track');
+          var slides = lightbox.querySelectorAll('.lightbox__slide');
+          var prevBtn = lightbox.querySelector('.lightbox__prev');
+          var nextBtn = lightbox.querySelector('.lightbox__next');
+          var backdrop = lightbox.querySelector('.modal__backdrop');
+          var closeBtn = lightbox.querySelector('.modal__close');
+          var counterEl = lightbox.querySelector('.lightbox__counter-current');
+          var total = slides.length;
+          var current = 0;
+          var viewport = lightbox.querySelector('.lightbox__viewport');
+
+          function slideWidth() { return viewport ? viewport.offsetWidth : window.innerWidth; }
+
+          function goTo(index) {
+            if (index < 0 || index >= total) return;
+            current = index;
+            track.classList.remove('is-dragging');
+            track.style.transform = 'translateX(' + (-current * slideWidth()) + 'px)';
+            if (counterEl) counterEl.textContent = current + 1;
+            if (prevBtn) prevBtn.style.display = current <= 0 ? 'none' : '';
+            if (nextBtn) nextBtn.style.display = current >= total - 1 ? 'none' : '';
+          }
+
+          function lbClose() { lightbox.hidePopover(); }
+          function lbOpen(index) { goTo(index); lightbox.showPopover(); }
+
+          article.addEventListener('click', function(e) {
+            var btn = e.target.closest('.image-preview-button');
+            if (!btn || btn.getAttribute('data-lightbox') !== lightbox.id) return;
+            e.preventDefault();
+            lbOpen(parseInt(btn.getAttribute('data-index') || '0', 10));
+          });
+
+          if (backdrop) backdrop.addEventListener('click', lbClose);
+          if (closeBtn) closeBtn.addEventListener('click', lbClose);
+          if (prevBtn) prevBtn.addEventListener('click', function() { goTo(current - 1); });
+          if (nextBtn) nextBtn.addEventListener('click', function() { goTo(current + 1); });
+
+          lightbox.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') goTo(current - 1);
+            else if (e.key === 'ArrowRight') goTo(current + 1);
+          });
+
+          lightbox.addEventListener('toggle', function(e) {
+            if (e.newState === 'closed') goTo(0);
+          });
+
+          if (total < 2) return;
+
+          var startX = 0, startY = 0, isDragging = false, isVertical = null, dragDelta = 0;
+
+          lightbox.addEventListener('touchstart', function(e) {
+            if (e.target.closest('.modal__close, .lightbox__prev, .lightbox__next')) return;
+            if (e.touches.length > 1) return;
+            var t = e.touches[0];
+            startX = t.clientX; startY = t.clientY;
+            isDragging = true; isVertical = null; dragDelta = 0;
+            track.classList.add('is-dragging');
+          }, { passive: true });
+
+          lightbox.addEventListener('touchmove', function(e) {
+            if (!isDragging || e.touches.length > 1) return;
+            var t = e.touches[0];
+            var dx = t.clientX - startX, dy = t.clientY - startY;
+            if (isVertical === null && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+              isVertical = Math.abs(dy) > Math.abs(dx);
+            }
+            if (isVertical) {
+              dragDelta = dy;
+            } else {
+              e.preventDefault();
+              dragDelta = dx;
+              track.style.transform = 'translateX(' + (-current * slideWidth() + dx) + 'px)';
+            }
+          }, { passive: false });
+
+          lightbox.addEventListener('touchend', function() {
+            if (!isDragging) return;
+            isDragging = false;
+            if (isVertical && dragDelta > 80) { lbClose(); return; }
+            if (!isVertical && Math.abs(dragDelta) > 50) {
+              if (dragDelta < -50 && current < total - 1) goTo(current + 1);
+              else if (dragDelta > 50 && current > 0) goTo(current - 1);
+              else goTo(current);
+              return;
+            }
+            goTo(current);
+          }, { passive: true });
+        }).call(document.currentScript);
+      </script>
     )
   }
 </article>

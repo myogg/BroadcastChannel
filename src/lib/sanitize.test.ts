@@ -15,6 +15,15 @@ describe('sanitizeContentHtml', () => {
     expect(result).toContain('src="modal.jpg"')
     expect(result).toContain('class="photo modal-img"')
   })
+
+  it('preserves data-lightbox and data-index attributes on buttons', () => {
+    const result = sanitizeContentHtml(`
+      <button type="button" class="image-preview-button" data-lightbox="lightbox-123" data-index="0">Open</button>
+    `)
+
+    expect(result).toContain('data-lightbox="lightbox-123"')
+    expect(result).toContain('data-index="0"')
+  })
 })
 
 describe('sanitizeFeedHtml', () => {

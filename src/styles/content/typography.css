@@ -97,6 +97,10 @@
       line-break: anywhere;
     }
 
+    a[href^="/search/result?q="] {
+      display: none;
+    }
+
     pre {
       @apply whitespace-pre-wrap p-2.5;
       background-color: var(--code-background-color);

@@ -108,25 +108,19 @@
     }
 
     .modal {
-      @apply fixed inset-0 z-[1000] hidden box-border h-dvh w-screen overflow-hidden overscroll-contain border-0 bg-black/80 p-5 backdrop-blur-[20px];
+      @apply fixed inset-0 z-[1000] hidden box-border h-dvh w-screen overflow-hidden overscroll-contain border-0 bg-black/80 backdrop-blur-[20px];
     }
 
     .modal:popover-open {
-      @apply grid place-items-center;
+      @apply flex flex-col;
     }
 
     .modal__backdrop {
       @apply absolute inset-0 z-0 block cursor-pointer appearance-none border-0 bg-transparent;
     }
 
-    .modal__surface {
-      @apply relative z-10 m-0 flex w-auto items-center justify-center overflow-hidden box-border px-6 pb-6 pt-12;
-      max-width: calc(100vw - 40px);
-      max-height: calc(100dvh - 40px);
-    }
-
     .modal__close {
-      @apply absolute z-20 inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-0 bg-[rgba(0,0,0,0.72)] text-2xl leading-none text-white shadow-soft;
+      @apply absolute z-30 inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-0 bg-[rgba(0,0,0,0.72)] text-2xl leading-none text-white shadow-soft;
       top: max(16px, env(safe-area-inset-top));
       right: max(16px, env(safe-area-inset-right));
     }
@@ -135,12 +129,76 @@
       @apply bg-[rgba(0,0,0,0.86)];
     }
 
+    .lightbox__counter {
+      @apply absolute z-30 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-[rgba(0,0,0,0.72)] px-3 py-1 text-sm text-white/90;
+      top: max(20px, env(safe-area-inset-top));
+    }
+
+    .lightbox__prev,
+    .lightbox__next {
+      @apply absolute z-30 inline-flex size-11 cursor-pointer items-center justify-center rounded-full border-0 bg-[rgba(0,0,0,0.56)] text-3xl leading-none text-white shadow-soft;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .lightbox__prev {
+      left: max(12px, env(safe-area-inset-left));
+    }
+
+    .lightbox__next {
+      right: max(12px, env(safe-area-inset-right));
+    }
+
+    .lightbox__prev:hover,
+    .lightbox__next:hover {
+      @apply bg-[rgba(0,0,0,0.8)];
+    }
+
+    @media (max-width: 640px) {
+      .lightbox__prev,
+      .lightbox__next {
+        @apply size-9 text-2xl;
+      }
+
+      .lightbox__prev {
+        left: 4px;
+      }
+
+      .lightbox__next {
+        right: 4px;
+      }
+    }
+
+    .lightbox__viewport {
+      @apply relative z-10 flex-1 overflow-hidden;
+    }
+
+    .lightbox__track {
+      @apply flex h-full;
+      transition: transform 0.3s ease;
+      will-change: transform;
+    }
+
+    .lightbox__track.is-dragging {
+      transition: none;
+    }
+
+    .lightbox__slide {
+      @apply flex h-full w-full shrink-0 items-center justify-center;
+    }
+
     .modal-img {
       @apply m-0 block rounded-media border border-line object-contain shadow-soft;
       width: auto !important;
       height: auto !important;
       max-width: 100% !important;
-      max-height: 100% !important;
+      max-height: calc(100dvh - 100px) !important;
+    }
+
+    @media (min-width: 641px) {
+      .modal-img {
+        max-height: calc(100dvh - 60px) !important;
+      }
     }
   }
 }
