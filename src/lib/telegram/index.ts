@@ -5,7 +5,7 @@ import { loadChannelDocument } from './request'
 import { normalizeUrlAttribute } from './url'
 
 export function isRenderablePost(post: Post | null | undefined): post is Post {
-  return Boolean(post?.id && post.type === 'text' && post.content)
+  return Boolean(post?.id && post.type === 'text' && post.content && (post.text.trim() || post.title.trim()))
 }
 
 export async function getChannelPost(id: string): Promise<Post | null> {

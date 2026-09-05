@@ -1,25 +1,86 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import DirectorySection from '../components/DirectorySection.astro'
 import { getChannelInfo } from '../lib/telegram'
-import { getEnv, parseDelimitedItems } from '../lib/env'
 
 const channel = await getChannelInfo()
-const pageSeo = { title: 'Links' }
-const links = parseDelimitedItems(getEnv(import.meta.env, 'LINKS'))
+const pageSeo = { title: '我的导航' }
 
-if (!links.length) {
-  return Astro.redirect('/')
+interface LinkItem {
+  label: string
+  href: string
+  desc: string
 }
 
-const items = links.map((link) => ({
-  href: link.href,
-  label: link.title,
-  title: link.title,
-  external: true,
-}))
+interface LinkGroup {
+  title: string
+  items: LinkItem[]
+}
+
+const groups: LinkGroup[] = [
+  {
+    title: '我的站点',
+    items: [
+      { label: '134688', href: 'https://134688.xyz', desc: '个人站点' },
+      { label: '100412', href: 'https://100412.xyz', desc: '个人站点' },
+      { label: '829259', href: 'https://829259.xyz', desc: '个人站点' },
+    ],
+  },
+  {
+    title: '云服务 & 域名',
+    items: [
+      { label: 'Cloudflare', href: 'https://cloudflare.com', desc: 'CDN & DNS' },
+      { label: 'InfinityFree', href: 'https://infinityfree.com', desc: '免费托管' },
+      { label: 'Serv00', href: 'https://serv00.com', desc: '免费VPS' },
+      { label: 'Name.com', href: 'https://name.com', desc: '域名注册' },
+      { label: 'DigitalPlat', href: 'https://digitalplat.org', desc: '数字平台' },
+      { label: 'Domain Dash', href: 'https://dash.domain.digitalplat.org', desc: '域名管理' },
+    ],
+  },
+  {
+    title: '技术社区',
+    items: [
+      { label: 'GitHub', href: 'https://github.com', desc: '代码托管' },
+      { label: 'Linux.do', href: 'https://linux.do', desc: 'Linux社区' },
+      { label: 'NodeSeek', href: 'https://nodeseek.com', desc: 'VPS交流' },
+    ],
+  },
+  {
+    title: '社交 & 购物',
+    items: [
+      { label: 'Instagram', href: 'https://instagram.com', desc: '图片社交' },
+      { label: 'Pinterest', href: 'https://pinterest.com', desc: '灵感收藏' },
+      { label: 'Amazon', href: 'https://amazon.com', desc: '在线购物' },
+    ],
+  },
+  {
+    title: '科技 & 工具',
+    items: [
+      { label: 'NVIDIA', href: 'https://nvidia.com', desc: 'GPU & AI' },
+      { label: 'Superbed', href: 'https://superbed.cc', desc: '图床工具' },
+      { label: 'Hidoha', href: 'https://hidoha.net', desc: '图床工具' },
+      { label: 'GreenVideo', href: 'https://greenvideo.cc', desc: '视频工具' },
+    ],
+  },
+]
 ---
 
 <BaseLayout channel={channel} seo={pageSeo} pageType="page">
-  <DirectorySection id="links" title="Links" items={items} />
+  <div class="nav-page">
+    <h1>我的导航</h1>
+    {
+      groups.map((group) => (
+        <section class="nav-group">
+          <h2>{group.title}</h2>
+          <div class="nav-grid">
+            {group.items.map((item) => (
+              <a class="nav-card" href={item.href} target="_blank" rel="noopener noreferrer">
+                <span class="nav-card-title">{item.label}</span>
+                <span class="nav-card-desc">{item.desc}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
 </BaseLayout>

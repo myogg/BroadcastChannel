@@ -1,4 +1,4 @@
-import type { Reaction } from '../types'
+import type { Post, Reaction } from '../types'
 
 export const paidReactionClass = 'reaction-paid'
 
@@ -72,6 +72,23 @@ export function formatPostTime(datetime: string, timezone?: string, locale?: str
   const postTime = new Date(datetime)
 
   return formatAbsoluteTime(postTime, timezone)
+}
+
+export function groupByYearMonth(posts: Post[], timezone?: string): { key: string, label: string, posts: Post[] }[] {
+  const groups = new Map<string, { label: string, posts: Post[] }>()
+
+  for (const post of posts) {
+    const date = new Date(post.datetime)
+    const year = new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: timezone }).format(date)
+    const month = new Intl.DateTimeFormat('en', { month: 'long', timeZone: timezone }).format(date)
+    const key = `${year}-${month}`
+    if (!groups.has(key)) {
+      groups.set(key, { label: `${year} ${month}`, posts: [] })
+    }
+    groups.get(key)!.posts.push(post)
+  }
+
+  return [...groups.entries()].map(([key, value]) => ({ key, ...value }))
 }
 
 export function getTagHref(tag: string): string {

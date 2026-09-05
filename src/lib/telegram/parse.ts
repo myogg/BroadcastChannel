@@ -9,6 +9,17 @@ import { normalizeUrlAttributes } from './url'
 
 const TITLE_PREVIEW_REGEX = /^.*?(?=[。\n]|http\S)/g
 const HASHTAG_REGEX = /#([\p{L}\p{N}_]+)/gu
+const MAX_TAG_LENGTH = 10
+
+function isValidTag(tag: string): boolean {
+  if (!tag)
+    return false
+  if (/^\d+$/.test(tag))
+    return false
+  if (tag.length > MAX_TAG_LENGTH)
+    return false
+  return true
+}
 
 function isNonEmptyString(value: string | null | undefined): value is string {
   return Boolean(value)
@@ -34,7 +45,7 @@ function rewriteTagLinksAndCollectTags($: CheerioAPI, content: MessageSelection)
     tagSet.add(match[1])
   }
 
-  return [...tagSet]
+  return [...tagSet].filter(isValidTag)
 }
 
 function renderPostContent(

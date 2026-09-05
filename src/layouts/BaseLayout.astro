@@ -20,14 +20,22 @@ const { channel, pageClass, pageType, seo } = Astro.props as {
 
 const locale = getEnv(import.meta.env, 'LOCALE')
 const twitter = getEnv(import.meta.env, 'TWITTER')
-const { currentPathname, hasCustomTitle, linksPathname, seoParams, siteRootPathname, siteTitle, tagsPathname } =
-  getPageSeo({
-    channel,
-    locale,
-    seo,
-    siteUrl: SITE_URL,
-    url: Astro.url,
-  })
+const {
+  currentPathname,
+  hasCustomTitle,
+  archivePathname,
+  linksPathname,
+  seoParams,
+  siteRootPathname,
+  siteTitle,
+  tagsPathname,
+} = getPageSeo({
+  channel,
+  locale,
+  seo,
+  siteUrl: SITE_URL,
+  url: Astro.url,
+})
 
 const GOOGLE_SEARCH_SITE = getEnv(import.meta.env, 'GOOGLE_SEARCH_SITE')
 const searchAction = GOOGLE_SEARCH_SITE ? 'https://www.google.com/search' : `${SITE_URL}search/result`
@@ -47,11 +55,24 @@ const sidebarTags = (() => {
   const min = sorted[sorted.length - 1][1]
   const max = sorted[0][1]
   const range = max - min || 1
-  return sorted.map(([tag, count]) => ({
-    href: `/search/result?q=${encodeURIComponent(`#${tag}`)}`,
-    label: tag,
-    size: 0.75 + ((count - min) / range) * 0.45,
-  }))
+  const tagColors = ['#e8832a', '#5b8c3e', '#3a8fb7', '#7b61a5', '#b07d4f', '#c4516d', '#2e8b7a', '#8b6e3e']
+  return sorted.map(([tag, count], i) => {
+    const ratio = (count - min) / range
+    let color: string
+    if (i === 0) {
+      color = '#e44d6e'
+    } else if (ratio < 0.15) {
+      color = '#333'
+    } else {
+      color = tagColors[i % tagColors.length]
+    }
+    return {
+      href: `/search/result?q=${encodeURIComponent(`#${tag}`)}`,
+      label: tag,
+      size: 0.65 + ratio * 0.85,
+      color,
+    }
+  })
 })()
 const LINKS = getEnv(import.meta.env, 'LINKS')
 const navs = parseDelimitedItems(getEnv(import.meta.env, 'NAVS'))
@@ -84,6 +105,7 @@ const skipLinkText = 'Skip to main content'
       <SiteNavigation
         channelTitle={channel?.title}
         currentPathname={currentPathname}
+        archivePathname={archivePathname}
         linksPathname={linksPathname}
         navs={navs}
         showLinks={Boolean(LINKS)}

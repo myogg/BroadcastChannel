@@ -29,6 +29,18 @@ describe('post renderability', () => {
     expect(isRenderablePost(createPost({ content: '' }))).toBe(false)
   })
 
+  it('rejects posts with empty text and title', () => {
+    expect(isRenderablePost(createPost({ text: '', title: '' }))).toBe(false)
+  })
+
+  it('accepts posts with title but no text', () => {
+    expect(isRenderablePost(createPost({ text: '' }))).toBe(true)
+  })
+
+  it('accepts posts with text but no title', () => {
+    expect(isRenderablePost(createPost({ title: '' }))).toBe(true)
+  })
+
   it('rejects service posts', () => {
     expect(isRenderablePost(createPost({ type: 'service' }))).toBe(false)
   })

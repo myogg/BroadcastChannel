@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { getChannelInfo } from '../../../lib/telegram'
+import { groupByYearMonth, formatPostTime } from '../../../lib/post-ui'
+import { getEnv } from '../../../lib/env'
+import type { SeoMeta } from '../../../types'
+
+const channel = await getChannelInfo({
+  before: Astro.params.cursor,
+})
+const timezone = getEnv(import.meta.env, 'TIMEZONE')
+const { SITE_URL } = Astro.locals
+const posts = channel.posts ?? []
+const groups = groupByYearMonth(posts, timezone)
+
+const beforeCursor = posts[posts.length - 1]?.id
+const afterCursor = posts[0]?.id
+const hasOlderPosts = beforeCursor && Number(beforeCursor) > 1
+const hasNewerPosts = Boolean(afterCursor)
+const pageSeo: SeoMeta = { noindex: true }
+---
+
+<BaseLayout channel={channel} seo={pageSeo} pageType="page" pageClass="archive">
+  <div class="archive">
+    <h1>Archive</h1>
+    {
+      groups.map((group) => (
+        <section class="archive-group">
+          <h2>{group.label}</h2>
+          <ul class="archive-list">
+            {group.posts.map((post) => {
+              const time = formatPostTime(post.datetime, timezone)
+              const href = `${SITE_URL}posts/${post.id}`
+              const title = post.title || post.text?.slice(0, 80) || post.id
+              return (
+                <li>
+                  <span class="archive-date">
+                    {time.month} {time.day}
+                  </span>
+                  <a href={href}>{title}</a>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      ))
+    }
+    <nav class="pagination" aria-label="Pagination">
+      {
+        hasOlderPosts ? (
+          <a
+            href={`${SITE_URL}archive/before/${beforeCursor}`}
+            title="Older posts"
+            aria-label="Older posts"
+            class="older"
+          >
+            <span aria-hidden="true">←</span>
+          </a>
+        ) : null
+      }
+      {
+        hasNewerPosts ? (
+          <a
+            href={`${SITE_URL}archive/before/${afterCursor}`}
+            title="Newer posts"
+            aria-label="Newer posts"
+            class="newer"
+          >
+            <span aria-hidden="true">→</span>
+          </a>
+        ) : null
+      }
+    </nav>
+  </div>
+</BaseLayout>

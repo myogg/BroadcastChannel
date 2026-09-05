@@ -26,6 +26,14 @@ const hasContent = contentHtml.length > 0
 const hasStoryTitle = post.title.trim().length > 0
 const hasReactions = Boolean(reactionsEnabled && post.reactions?.length > 0)
 const hasTags = post.tags.length > 0
+
+const cjkRatio = (() => {
+  const text = post.text
+  if (!text) return 0
+  const cjk = text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)
+  return cjk ? cjk.length / text.length : 0
+})()
+const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
 ---
 
 <article class="post-entry" style={{ 'view-transition-name': `post-${post.id}` }}>
@@ -51,6 +59,23 @@ const hasTags = post.tags.length > 0
         </time>
       </a>
     </p>
+    {
+      hasContent && (
+        <button class="listen-btn" type="button" aria-label={listenLabel} aria-pressed="false">
+          <svg class="icon-play" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+            <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" />
+          </svg>
+          <svg class="icon-stop" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="display:none">
+            <rect x="7" y="7" width="10" height="10" rx="2" />
+          </svg>
+          <svg class="icon-spinner" aria-hidden="true" viewBox="0 0 24 24" fill="none" width="14" height="14" style="display:none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25" />
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+          </svg>
+          <span class="listen-label">{listenLabel}</span>
+        </button>
+      )
+    }
   </div>
   {hasContent && <div class="post-content content" set:html={contentHtml} />}
   <p class="tg-message-meta">
@@ -120,6 +145,128 @@ const hasTags = post.tags.length > 0
           /* Explicit closing avoids an astro-eslint-parser v3 crash. */
         </script>
       </section>
+    )
+  }
+  {
+    hasContent && (
+      <script is:inline data-tts>
+        (function() {
+          var article = this.closest('.post-entry');
+          var content = article && article.querySelector('.post-content');
+          var btn = article && article.querySelector('.listen-btn');
+          if (!article || !content || !btn) return;
+
+          var iconPlay = btn.querySelector('.icon-play');
+          var iconStop = btn.querySelector('.icon-stop');
+          var iconSpinner = btn.querySelector('.icon-spinner');
+          var label = btn.querySelector('.listen-label');
+
+          var TTS_API = 'https://tts.134688.xyz';
+          var TTS_TOKEN = 'tts100412';
+          var audio = null;
+          var activeRead = false;
+          var isSpeaking = false;
+          var abortController = null;
+          var defaultLabel = label.textContent;
+          var isEnglish = defaultLabel === 'Listen';
+          var enLabels = { loading: 'Loading\u2026', buffering: 'Buffering\u2026', playing: 'Playing\u2026' };
+          var zhLabels = { loading: '\u52a0\u8f7d\u4e2d\u2026', buffering: '\u7f13\u51b2\u4e2d\u2026', playing: '\u64ad\u653e\u4e2d\u2026' };
+          var t = isEnglish ? enLabels : zhLabels;
+
+          function updateState(state) {
+            label.textContent = state.label;
+            btn.setAttribute('aria-label', state.label);
+            btn.setAttribute('aria-pressed', String(state.pressed));
+            btn.classList.toggle('is-playing', state.pressed);
+            iconPlay.style.display = state.icon === 'play' ? '' : 'none';
+            iconStop.style.display = state.icon === 'stop' ? '' : 'none';
+            iconSpinner.style.display = state.icon === 'spinner' ? '' : 'none';
+          }
+
+          function splitText(text, maxLen) {
+            var parts = [];
+            while (text.length > maxLen) {
+              var cut = maxLen;
+              var chunk = text.slice(0, maxLen);
+              var last = Math.max(chunk.lastIndexOf('\u3002'), chunk.lastIndexOf('\uff01'), chunk.lastIndexOf('\uff1f'), chunk.lastIndexOf('\n'));
+              if (last > maxLen * 0.4) cut = last + 1;
+              parts.push(text.slice(0, cut).trim());
+              text = text.slice(cut).trim();
+            }
+            if (text.trim()) parts.push(text.trim());
+            return parts;
+          }
+
+          function fetchAudio(text) {
+            var params = new URLSearchParams({ text: text, voiceName: 'zh-CN-XiaoxiaoNeural', token: TTS_TOKEN });
+            return fetch(TTS_API + '/api/synthesis?' + params, { signal: abortController.signal })
+              .then(function(r) { if (!r.ok) throw new Error('TTS API error'); return r.blob(); });
+          }
+
+          function stopReading() {
+            activeRead = false;
+            if (abortController) abortController.abort();
+            if (audio) { audio.pause(); audio.src = ''; audio = null; }
+            isSpeaking = false;
+            updateState({ label: defaultLabel, icon: 'play', pressed: false });
+          }
+
+          function startReading() {
+            var fullText = content.innerText.replace(/\s+/g, ' ').trim();
+            if (!fullText) return;
+            activeRead = true;
+            abortController = new AbortController();
+            var chunks = splitText(fullText, 300);
+            updateState({ label: t.loading, icon: 'spinner', pressed: true });
+
+            fetchAudio(chunks[0]).then(function(firstBlob) {
+              function playNext(index) {
+                if (!activeRead) return;
+                if (index >= chunks.length) {
+                  isSpeaking = false;
+                  audio = null;
+                  updateState({ label: defaultLabel, icon: 'play', pressed: false });
+                  return;
+                }
+                var blobPromise;
+                if (index === 0) {
+                  blobPromise = Promise.resolve(firstBlob);
+                } else {
+                  updateState({ label: t.buffering, icon: 'spinner', pressed: true });
+                  blobPromise = fetchAudio(chunks[index]);
+                }
+                blobPromise.then(function(blob) {
+                  if (!activeRead) return;
+                  var url = URL.createObjectURL(blob);
+                  audio = new Audio(url);
+                  audio.onplay = function() {
+                    isSpeaking = true;
+                    updateState({ label: t.playing, icon: 'stop', pressed: true });
+                  };
+                  audio.onended = function() { URL.revokeObjectURL(url); playNext(index + 1); };
+                  audio.onerror = function() { URL.revokeObjectURL(url); playNext(index + 1); };
+                  audio.play();
+                }).catch(function() {
+                  if (!activeRead) return;
+                  stopReading();
+                });
+              }
+              playNext(0);
+            }).catch(function() {
+              if (abortController && !abortController.signal.aborted) {
+                isSpeaking = false;
+                updateState({ label: defaultLabel, icon: 'play', pressed: false });
+              }
+            });
+          }
+
+          btn.addEventListener('click', function() {
+            if (isSpeaking) { stopReading(); return; }
+            startReading();
+          });
+          window.addEventListener('beforeunload', stopReading);
+        }).call(document.currentScript);
+      </script>
     )
   }
 </article>

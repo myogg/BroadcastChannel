@@ -39,13 +39,31 @@
     flex-wrap: wrap;
     gap: 0.4rem;
     align-items: baseline;
+    list-style: none;
   }
 
   .sidebar-tags a {
+    font-weight: 700;
     text-decoration: none;
   }
 
   .sidebar-tags a:hover {
+    text-decoration: underline;
+    filter: brightness(1.15);
+  }
+
+  .sidebar-copyright {
+    margin-top: 1.5rem;
+    font-size: 0.75em;
+    color: var(--muted-color);
+  }
+
+  .sidebar-copyright a {
+    color: var(--muted-color);
+    text-decoration: none;
+  }
+
+  .sidebar-copyright a:hover {
     text-decoration: underline;
   }
 

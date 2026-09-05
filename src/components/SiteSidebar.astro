@@ -5,6 +5,7 @@ interface TagItem {
   href: string
   label: string
   size: number
+  color: string
 }
 
 const {
@@ -24,9 +25,9 @@ const {
     tags.length > 0 && (
       <div class="sidebar-tags">
         <h2>Tags</h2>
-        <div class="tags" role="list">
+        <div class="tags">
           {tags.map((tag) => (
-            <a href={tag.href} style={`font-size: ${tag.size}em`} role="listitem">
+            <a href={tag.href} style={`font-size: ${tag.size}em; color: ${tag.color}`}>
               {tag.label}
             </a>
           ))}

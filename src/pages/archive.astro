@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { getChannelInfo } from '../lib/telegram'
+import { groupByYearMonth, formatPostTime } from '../lib/post-ui'
+import { getEnv } from '../lib/env'
+
+const channel = await getChannelInfo()
+const timezone = getEnv(import.meta.env, 'TIMEZONE')
+const { SITE_URL } = Astro.locals
+const posts = channel.posts ?? []
+
+// Fetch all older posts by paginating
+let allPosts = [...posts]
+let cursor = posts[posts.length - 1]?.id
+while (cursor && Number(cursor) > 1) {
+  const older = await getChannelInfo({ before: cursor })
+  const olderPosts = older.posts ?? []
+  if (!olderPosts.length) break
+  allPosts = allPosts.concat(olderPosts)
+  const nextCursor = olderPosts[olderPosts.length - 1]?.id
+  if (!nextCursor || nextCursor === cursor) break
+  cursor = nextCursor
+}
+
+const groups = groupByYearMonth(allPosts, timezone)
+const pageSeo = { title: 'Archive' }
+---
+
+<BaseLayout channel={channel} seo={pageSeo} pageType="page" pageClass="archive">
+  <div class="archive">
+    <h1>Archive</h1>
+    {
+      groups.map((group) => (
+        <section class="archive-group">
+          <h2>{group.label}</h2>
+          <ul class="archive-list">
+            {group.posts.map((post) => {
+              const time = formatPostTime(post.datetime, timezone)
+              const href = `${SITE_URL}posts/${post.id}`
+              const title = post.title || post.text?.slice(0, 80) || post.id
+              return (
+                <li>
+                  <span class="archive-date">
+                    {time.month} {time.day}
+                  </span>
+                  <a href={href}>{title}</a>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
