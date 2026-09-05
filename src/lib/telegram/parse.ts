@@ -43,11 +43,6 @@ function rewriteTagLinksAndCollectTags($: CheerioAPI, content: MessageSelection)
     }
   }
 
-  const text = content.text()
-  for (const match of text.matchAll(HASHTAG_REGEX)) {
-    tagSet.add(match[1])
-  }
-
   return [...tagSet].filter(isValidTag)
 }
 
