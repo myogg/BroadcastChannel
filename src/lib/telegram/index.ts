@@ -1,4 +1,5 @@
 import type { ChannelInfo, GetChannelInfoParams, Post } from '../../types'
+import { defineCachedFunction } from 'ocache'
 import { modifyHTMLContent } from './content'
 import { extractPost } from './parse'
 import { loadChannelDocument } from './request'
@@ -36,3 +37,46 @@ export async function getChannelInfo(params: GetChannelInfoParams = {}): Promise
 
   return channelInfo
 }
+
+// Bound the number of pages the tag scan walks, mirroring the archive page cap.
+// The result is cached (see getAllTags) so this runs once per cache window, not
+// on every request.
+const MAX_TAG_SCAN_PAGES = 50
+
+async function fetchAllTags(): Promise<Map<string, number>> {
+  const counts = new Map<string, number>()
+  const addTags = (posts: Post[]): void => {
+    for (const post of posts) {
+      for (const tag of post.tags) {
+        counts.set(tag, (counts.get(tag) ?? 0) + 1)
+      }
+    }
+  }
+
+  let channel = await getChannelInfo()
+  addTags(channel.posts ?? [])
+  let cursor = channel.posts[channel.posts.length - 1]?.id
+  let pagesFetched = 0
+
+  while (cursor && Number(cursor) > 1 && pagesFetched < MAX_TAG_SCAN_PAGES) {
+    channel = await getChannelInfo({ before: cursor })
+    const olderPosts = channel.posts ?? []
+    if (!olderPosts.length)
+      break
+    addTags(olderPosts)
+    const nextCursor = olderPosts[olderPosts.length - 1]?.id
+    if (!nextCursor || nextCursor === cursor)
+      break
+    cursor = nextCursor
+    pagesFetched += 1
+  }
+
+  return counts
+}
+
+export const getAllTags = defineCachedFunction(fetchAllTags, {
+  name: 'all-tags',
+  maxAge: 60 * 240,
+  swr: false,
+  getKey: () => 'all-tags',
+})
