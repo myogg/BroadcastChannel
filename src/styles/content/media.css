@@ -7,19 +7,19 @@
     }
 
     .image-list-container {
-      @apply grid grid-cols-2 gap-2;
+      &.image-list-multi {
+        columns: 2;
+        column-gap: 0.5rem;
+      }
 
-      &.image-list-odd {
-        :first-child {
-          grid-column: 1 / 3;
-        }
+      .image-preview-button {
+        @apply mb-2;
+        break-inside: avoid;
       }
     }
 
     .image-list-container img {
       @apply mb-0;
-      aspect-ratio: 4 / 3;
-      object-fit: cover;
     }
 
     .tgme_widget_message_video,

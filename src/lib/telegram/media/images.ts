@@ -40,23 +40,23 @@ export function getImages($: CheerioAPI, message: MessageSelection, options: Mes
   }
 
   const lightboxId = `lightbox-${id}`
-  const layoutClass = previewButtons.length % 2 === 0 ? 'image-list-even' : 'image-list-odd'
+  const layoutClass = previewButtons.length > 1 ? 'image-list-multi' : 'image-list-single'
   const hasMultiple = previewButtons.length > 1
 
   const lightboxHtml = `<div class="modal lightbox" id="${lightboxId}" popover="auto" aria-label="Image preview">`
     + `<button type="button" class="modal__backdrop" aria-label="${safeCloseLabel}"></button>`
-    + `<button type="button" class="modal__close" aria-label="${safeCloseLabel}">&times;</button>`
-    + (hasMultiple
-      ? `<div class="lightbox__counter"><span class="lightbox__counter-current">1</span> / <span class="lightbox__counter-total">${previewButtons.length}</span></div>`
+    + `<button type="button" class="modal__close" aria-label="${safeCloseLabel}">&times;</button>${
+      hasMultiple
+        ? `<div class="lightbox__counter"><span class="lightbox__counter-current">1</span> / <span class="lightbox__counter-total">${previewButtons.length}</span></div>`
         + '<button type="button" class="lightbox__prev" aria-label="Previous image">&lsaquo;</button>'
         + '<button type="button" class="lightbox__next" aria-label="Next image">&rsaquo;</button>'
-      : '')
-    + '<div class="lightbox__viewport">'
-    + '<div class="lightbox__track">'
-    + slides.join('')
-    + '</div>'
-    + '</div>'
-    + '</div>'
+        : ''
+    }<div class="lightbox__viewport">`
+    + `<div class="lightbox__track">${
+      slides.join('')
+    }</div>`
+    + `</div>`
+    + `</div>`
 
   return `<div class="image-list-container ${layoutClass}">${previewButtons.join('')}${lightboxHtml}</div>`
 }
