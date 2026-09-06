@@ -30,7 +30,7 @@ export function getVideo($: CheerioAPI, message: MessageSelection, options: Inde
     .attr('playsinline', '')
     .attr('webkit-playsinline', '')
 
-  return $.html(video) + $.html(roundVideo)
+  return [$.html(video), $.html(roundVideo)].filter(Boolean).join('')
 }
 
 export function getAudio($: CheerioAPI, message: MessageSelection, options: StaticProxyOptions): string {

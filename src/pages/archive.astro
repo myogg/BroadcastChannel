@@ -9,10 +9,13 @@ const timezone = getEnv(import.meta.env, 'TIMEZONE')
 const { SITE_URL } = Astro.locals
 const posts = channel.posts ?? []
 
-// Fetch all older posts by paginating
+// Fetch older posts by paginating. The page count is capped to bound the number
+// of sequential Telegram requests a single /archive request can trigger.
+const MAX_ARCHIVE_PAGES = 50
 let allPosts = [...posts]
 let cursor = posts[posts.length - 1]?.id
-while (cursor && Number(cursor) > 1) {
+let pagesFetched = 0
+while (cursor && Number(cursor) > 1 && pagesFetched < MAX_ARCHIVE_PAGES) {
   const older = await getChannelInfo({ before: cursor })
   const olderPosts = older.posts ?? []
   if (!olderPosts.length) break
@@ -20,6 +23,7 @@ while (cursor && Number(cursor) > 1) {
   const nextCursor = olderPosts[olderPosts.length - 1]?.id
   if (!nextCursor || nextCursor === cursor) break
   cursor = nextCursor
+  pagesFetched += 1
 }
 
 const groups = groupByYearMonth(allPosts, timezone)
