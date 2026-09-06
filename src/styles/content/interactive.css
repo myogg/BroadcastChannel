@@ -100,7 +100,7 @@
     }
 
     .image-preview-button {
-      @apply mb-4 cursor-pointer appearance-none border-0 bg-transparent p-0;
+      @apply cursor-pointer appearance-none border-0 bg-transparent p-0;
     }
 
     .image-preview-button:focus-visible {
