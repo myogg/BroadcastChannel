@@ -146,20 +146,20 @@
     padding-top: 1.25rem;
   }
 
-  body.feed .image-list-multi {
+  body.feed .image-list-container.image-list-multi {
     position: relative;
     column-count: 1;
   }
 
-  body.feed .image-list-multi .image-preview-button {
+  body.feed .image-list-container.image-list-multi .image-preview-button {
     margin-bottom: 0;
   }
 
-  body.feed .image-list-multi .image-preview-button:not(:first-of-type) {
+  body.feed .image-list-container.image-list-multi .image-preview-button:not(:first-of-type) {
     display: none;
   }
 
-  body.feed .image-list-multi::after {
+  body.feed .image-list-container.image-list-multi::after {
     content: '1 / ' attr(data-total);
     position: absolute;
     right: 0.6rem;
