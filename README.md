@@ -153,6 +153,8 @@ NOINDEX=false
 
 ## UI
 HIDE_DESCRIPTION=false
+# Optional fixed signature below the title; empty falls back to the channel description.
+SITE_DESCRIPTION=
 COMMENTS=true
 REACTIONS=true
 RSS_BEAUTIFY=true

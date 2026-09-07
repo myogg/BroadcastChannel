@@ -1,4 +1,5 @@
 ---
+import SearchForm from './SearchForm.astro'
 import type { NavItem } from '../types'
 
 const {
@@ -7,6 +8,8 @@ const {
   archivePathname,
   linksPathname,
   navs = [],
+  searchAction,
+  googleSearchSite,
   showLinks,
   showTags,
   siteRootPathname,
@@ -18,6 +21,8 @@ const {
   archivePathname: string
   linksPathname: string
   navs?: NavItem[]
+  searchAction: string
+  googleSearchSite?: string
   showLinks?: boolean
   showTags?: boolean
   siteRootPathname: string
@@ -74,4 +79,5 @@ const primaryNavItems = [
       ))
     }
   </ul>
+  <SearchForm action={searchAction} googleSearchSite={googleSearchSite} />
 </nav>

@@ -17,6 +17,7 @@ const contentSanitizeOptions = {
       'role',
       'style',
       'title',
+      'data-total',
     ],
     'a': ['href', 'name', 'target', 'rel', 'title', 'class'],
     'audio': ['src', 'controls', 'preload'],

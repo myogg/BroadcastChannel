@@ -152,6 +152,8 @@ NOINDEX=false
 
 ## 界面
 HIDE_DESCRIPTION=false
+# 可选：标题下方的固定签名；留空则回退到频道简介。
+SITE_DESCRIPTION=
 COMMENTS=true
 REACTIONS=true
 RSS_BEAUTIFY=true

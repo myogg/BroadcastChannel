@@ -1,6 +1,4 @@
 ---
-import SearchForm from './SearchForm.astro'
-
 interface TagItem {
   href: string
   label: string
@@ -9,18 +7,17 @@ interface TagItem {
 }
 
 const {
-  searchAction,
-  googleSearchSite,
   tags = [],
+  hasMoreTags = false,
+  tagsPathname,
 } = Astro.props as {
-  searchAction: string
-  googleSearchSite?: string
   tags?: TagItem[]
+  hasMoreTags?: boolean
+  tagsPathname: string
 }
 ---
 
 <aside class="site-sidebar">
-  <SearchForm action={searchAction} googleSearchSite={googleSearchSite} />
   {
     tags.length > 0 && (
       <div class="sidebar-tags">
@@ -32,6 +29,11 @@ const {
             </a>
           ))}
         </div>
+        {
+          hasMoreTags && (
+            <a class="sidebar-tags-more" href={tagsPathname}>查看全部标签 →</a>
+          )
+        }
       </div>
     )
   }

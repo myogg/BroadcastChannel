@@ -61,19 +61,27 @@ const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
     </p>
     {
       hasContent && (
-        <button class="listen-btn" type="button" aria-label={listenLabel} aria-pressed="false">
-          <svg class="icon-play" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-            <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" />
-          </svg>
-          <svg class="icon-stop" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="display:none">
-            <rect x="7" y="7" width="10" height="10" rx="2" />
-          </svg>
-          <svg class="icon-spinner" aria-hidden="true" viewBox="0 0 24 24" fill="none" width="14" height="14" style="display:none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25" />
-            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-          </svg>
-          <span class="listen-label">{listenLabel}</span>
-        </button>
+        <>
+          <button class="listen-btn" type="button" aria-label={listenLabel} aria-pressed="false">
+            <svg class="icon-play" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" />
+            </svg>
+            <svg class="icon-stop" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="display:none">
+              <rect x="7" y="7" width="10" height="10" rx="2" />
+            </svg>
+            <svg class="icon-spinner" aria-hidden="true" viewBox="0 0 24 24" fill="none" width="14" height="14" style="display:none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25" />
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            </svg>
+            <span class="listen-label">{listenLabel}</span>
+          </button>
+          <span class="tts-speed" role="group" aria-label="Playback speed">
+            <button type="button" data-rate="0.75" aria-label="0.75× speed">0.75×</button>
+            <button type="button" data-rate="1" aria-label="Normal speed" aria-pressed="true" class="is-active">1×</button>
+            <button type="button" data-rate="1.25" aria-label="1.25× speed">1.25×</button>
+            <button type="button" data-rate="1.5" aria-label="1.5× speed">1.5×</button>
+          </span>
+        </>
       )
     }
   </div>
@@ -160,6 +168,9 @@ const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
           var iconStop = btn.querySelector('.icon-stop');
           var iconSpinner = btn.querySelector('.icon-spinner');
           var label = btn.querySelector('.listen-label');
+          var speedGroup = article.querySelector('.tts-speed');
+          var rateBtns = article.querySelectorAll('.tts-speed button[data-rate]');
+          var rate = 1;
 
           var TTS_API = 'https://tts.134688.xyz';
           var TTS_TOKEN = 'tts100412';
@@ -178,6 +189,7 @@ const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
             btn.setAttribute('aria-label', state.label);
             btn.setAttribute('aria-pressed', String(state.pressed));
             btn.classList.toggle('is-playing', state.pressed);
+            if (speedGroup) speedGroup.classList.toggle('is-visible', state.pressed);
             iconPlay.style.display = state.icon === 'play' ? '' : 'none';
             iconStop.style.display = state.icon === 'stop' ? '' : 'none';
             iconSpinner.style.display = state.icon === 'spinner' ? '' : 'none';
@@ -239,6 +251,7 @@ const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
                   if (!activeRead) return;
                   var url = URL.createObjectURL(blob);
                   audio = new Audio(url);
+                  audio.playbackRate = rate;
                   audio.onplay = function() {
                     isSpeaking = true;
                     updateState({ label: t.playing, icon: 'stop', pressed: true });
@@ -264,6 +277,23 @@ const listenLabel = cjkRatio >= 0.3 ? '听全文' : 'Listen'
             if (isSpeaking) { stopReading(); return; }
             startReading();
           });
+
+          function setRate(value) {
+            rate = value;
+            if (audio) audio.playbackRate = rate;
+            rateBtns.forEach(function(b) {
+              var active = parseFloat(b.getAttribute('data-rate') || '1') === rate;
+              b.classList.toggle('is-active', active);
+              b.setAttribute('aria-pressed', String(active));
+            });
+          }
+
+          rateBtns.forEach(function(b) {
+            b.addEventListener('click', function() {
+              setRate(parseFloat(b.getAttribute('data-rate') || '1'));
+            });
+          });
+
           window.addEventListener('beforeunload', stopReading);
         }).call(document.currentScript);
       </script>

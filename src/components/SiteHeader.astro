@@ -18,6 +18,7 @@ const MASTODON = getEnv(import.meta.env, 'MASTODON')
 const BLUESKY = getEnv(import.meta.env, 'BLUESKY')
 
 const hideDescription = getBooleanEnv(import.meta.env, 'HIDE_DESCRIPTION')
+const SITE_DESCRIPTION = getEnv(import.meta.env, 'SITE_DESCRIPTION')
 const descriptionHtml = channel?.descriptionHTML ? sanitizeContentHtml(channel.descriptionHTML) : ''
 const homeLabel = channel?.title ? `Home — ${channel.title}` : 'Home'
 
@@ -59,9 +60,15 @@ const socialLinks = buildSocialLinks({
     }
   </div>
   {
-    !hideDescription && descriptionHtml.length > 0 && (
-      <div class="channel-description content" set:html={descriptionHtml} />
-    )
+    SITE_DESCRIPTION
+      ? (
+          <p class="channel-description site-description">
+            {SITE_DESCRIPTION}
+          </p>
+        )
+      : !hideDescription && descriptionHtml.length > 0 && (
+          <div class="channel-description content" set:html={descriptionHtml} />
+        )
   }
   <slot />
 </header>

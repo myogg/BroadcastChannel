@@ -13,17 +13,6 @@
     flex-shrink: 0;
   }
 
-  .site-sidebar .search-field {
-    width: 100%;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-panel);
-    background: var(--background-color);
-  }
-
-  .site-sidebar .mobile-search {
-    display: none;
-  }
-
   .sidebar-tags {
     margin-top: 1.5rem;
   }
@@ -50,6 +39,18 @@
   .sidebar-tags a:hover {
     text-decoration: underline;
     filter: brightness(1.15);
+  }
+
+  .sidebar-tags-more {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: 0.8em;
+    color: var(--muted-color);
+    text-decoration: none;
+  }
+
+  .sidebar-tags-more:hover {
+    text-decoration: underline;
   }
 
   .sidebar-copyright {
@@ -165,6 +166,10 @@
     grid-column: 1 / -1;
     width: 100%;
     color: var(--text-color);
+  }
+
+  .site-description {
+    white-space: pre-line;
   }
 
   .site-navigation {

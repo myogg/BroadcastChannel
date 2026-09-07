@@ -58,5 +58,7 @@ export function getImages($: CheerioAPI, message: MessageSelection, options: Mes
     + `</div>`
     + `</div>`
 
-  return `<div class="image-list-container ${layoutClass}">${previewButtons.join('')}${lightboxHtml}</div>`
+  const totalAttr = hasMultiple ? ` data-total="${previewButtons.length}"` : ''
+
+  return `<div class="image-list-container ${layoutClass}"${totalAttr}>${previewButtons.join('')}${lightboxHtml}</div>`
 }
