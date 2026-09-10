@@ -43,10 +43,12 @@ const newerHref = nextPost
   : showNewer && afterCursor
     ? `${SITE_URL}after/${afterCursor}`
     : null
-// Post titles are derived from post text and repeat for some posts, so they make
-// poor labels; keep the same generic wording the feed pagination already uses.
 const olderLabel = prevPost ? 'Previous post' : 'Older posts'
 const newerLabel = nextPost ? 'Next post' : 'Newer posts'
+const prevTitle = prevPost?.title.trim() ?? ''
+const nextTitle = nextPost?.title.trim() ?? ''
+const prevAriaLabel = prevTitle ? `${olderLabel}: ${prevTitle}` : olderLabel
+const nextAriaLabel = nextTitle ? `${newerLabel}: ${nextTitle}` : newerLabel
 ---
 
 <BaseLayout channel={channel} pageClass={pageClass} seo={pageSeo} pageType={pageType}>
@@ -64,13 +66,29 @@ const newerLabel = nextPost ? 'Next post' : 'Newer posts'
 
   {
     olderHref || newerHref ? (
-      <nav class="pagination" aria-label="Pagination">
-        {olderHref ? (
+      <nav class={isDetail ? 'pagination post-nav' : 'pagination'} aria-label="Pagination">
+        {prevPost ? (
+          <div class="post-nav__item">
+            <a href={olderHref} title={prevTitle || olderLabel} aria-label={prevAriaLabel} class="older">
+              <span aria-hidden="true">←</span>
+            </a>
+            {prevTitle ? <span class="post-nav__label">{prevTitle}</span> : null}
+          </div>
+        ) : null}
+        {nextPost ? (
+          <div class="post-nav__item post-nav__item--next">
+            {nextTitle ? <span class="post-nav__label">{nextTitle}</span> : null}
+            <a href={newerHref} title={nextTitle || newerLabel} aria-label={nextAriaLabel} class="newer">
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        ) : null}
+        {!isDetail && olderHref ? (
           <a href={olderHref} title={olderLabel} aria-label={olderLabel} class="older">
             <span aria-hidden="true">←</span>
           </a>
         ) : null}
-        {newerHref ? (
+        {!isDetail && newerHref ? (
           <a href={newerHref} title={newerLabel} aria-label={newerLabel} class="newer">
             <span aria-hidden="true">→</span>
           </a>

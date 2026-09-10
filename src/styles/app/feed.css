@@ -229,6 +229,34 @@
     margin-left: auto;
   }
 
+  /* Post detail: the neighbouring titles sit beside the arrows. The arrows stay
+     bare elements so each theme keeps styling the link itself; the label is a
+     sibling so an unlayered theme rule on `.pagination a` cannot squash it. */
+  .post-nav__item {
+    display: flex;
+    min-width: 0;
+    max-width: 48%;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .post-nav__item--next {
+    margin-left: auto;
+  }
+
+  .post-nav__label {
+    overflow: hidden;
+    flex: 1 1 auto;
+    font-size: 0.85em;
+    color: var(--muted-color);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .post-nav__item:hover .post-nav__label {
+    color: var(--heading-color);
+  }
+
   .directory h1 {
     margin-top: 0;
     font-size: 1.4em;
