@@ -6,14 +6,8 @@ interface TagItem {
   color: string
 }
 
-const {
-  tags = [],
-  hasMoreTags = false,
-  tagsPathname,
-} = Astro.props as {
+const { tags = [] } = Astro.props as {
   tags?: TagItem[]
-  hasMoreTags?: boolean
-  tagsPathname: string
 }
 ---
 
@@ -29,11 +23,6 @@ const {
             </a>
           ))}
         </div>
-        {
-          hasMoreTags && (
-            <a class="sidebar-tags-more" href={tagsPathname}>查看全部标签 →</a>
-          )
-        }
       </div>
     )
   }
