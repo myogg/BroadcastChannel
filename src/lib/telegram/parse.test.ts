@@ -12,6 +12,16 @@ const TELEGRAM_POST_HTML = `
   </div>
 `
 
+const TELEGRAM_ALBUM_POST_HTML = `
+  <div class="tgme_widget_message_wrap">
+    <div class="tgme_widget_message" data-post="ExampleChannel/43">
+      <a class="tgme_widget_message_photo_wrap grouped_media"></a>
+      <div class="tgme_widget_message_text js-message_text"><div class="tgme_widget_message_text js-message_text">Album caption。With a <a href="?q=%23release">#release</a> tag</div></div>
+      <a class="tgme_widget_message_date"><time datetime="2026-07-15T08:30:00+00:00"></time></a>
+    </div>
+  </div>
+`
+
 describe('extractPost', () => {
   it('extracts stable Telegram post fields and rewrites tag links', async () => {
     const $ = load(TELEGRAM_POST_HTML)
@@ -31,5 +41,22 @@ describe('extractPost', () => {
     expect(post.text).toBe('Release notes。Details for #release and #astro')
     expect(post.content).toBe('Release notes。Details for <a href="/search/result?q=%23release" title="#release">#release</a> and <a href="/search/result?q=%23astro" title="#astro">#astro</a>')
     expect(post.reactions).toEqual([])
+  })
+
+  it('reads a media-group caption once despite the doubly nested text element', async () => {
+    const $ = load(TELEGRAM_ALBUM_POST_HTML)
+    const item = $('.tgme_widget_message_wrap').get(0) ?? null
+
+    const post = await extractPost($, item, {
+      channel: 'ExampleChannel',
+      telegramHost: 'telegram.me',
+      staticProxy: '/static/',
+      reactionsEnabled: false,
+    })
+
+    expect(post.text).toBe('Album caption。With a #release tag')
+    expect(post.title).toBe('Album caption')
+    expect(post.tags).toEqual(['release'])
+    expect(post.content.match(/Album caption/g)).toHaveLength(1)
   })
 })

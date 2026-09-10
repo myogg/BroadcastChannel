@@ -8,7 +8,6 @@ import { renderRawContent } from './renderers/raw'
 import { normalizeUrlAttributes } from './url'
 
 const TITLE_PREVIEW_REGEX = /^.*?(?=[。\n]|http\S)/g
-const HASHTAG_REGEX = /#([\p{L}\p{N}_]+)/gu
 const MAX_TAG_LENGTH = 10
 const MAX_TAG_UTF16_LENGTH = 20
 
@@ -128,9 +127,16 @@ export async function extractPost($: CheerioAPI, item: AnyNode | null, options: 
   const message = item ? $(item).find('.tgme_widget_message') : $('.tgme_widget_message')
   normalizeUrlAttributes($, message)
   const hasReplyText = message.find('.js-message_reply_text').length > 0
+  const contentMatches = message.find(
+    hasReplyText ? '.tgme_widget_message_text.js-message_text' : '.tgme_widget_message_text',
+  )
+  // Telegram wraps a media-group caption in an extra element carrying the same
+  // class, so the matches can contain a node and its own descendant. `.text()`
+  // walks every match and would return that caption twice, doubling the derived
+  // `title` and the image alt text; keep the outermost matches only.
   const content = await modifyHTMLContent(
     $,
-    message.find(hasReplyText ? '.tgme_widget_message_text.js-message_text' : '.tgme_widget_message_text'),
+    contentMatches.filter((_, node) => $(node).parents('.tgme_widget_message_text').length === 0),
     { index, telegramHost, staticProxy, normalizeUrls: false },
   )
   const contentText = content.text()
