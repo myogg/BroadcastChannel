@@ -23,6 +23,19 @@ const channel = {
   ...(channelInfo || {}),
   posts: [post],
 }
+
+// Neighbouring posts come from the two adjacent Telegram pages, one on each
+// side of this id. Both requests are cached. Pick by id rather than by position:
+// `posts` is newest-first, and a page can span a gap of deleted messages.
+const [olderPage, newerPage] = await Promise.all([
+  getChannelInfo({ before: post.id }),
+  getChannelInfo({ after: post.id }),
+])
+const id = Number(post.id)
+const prevPost =
+  olderPage.posts.filter((item) => Number(item.id) < id).sort((a, b) => Number(b.id) - Number(a.id))[0] ?? null
+const nextPost =
+  newerPage.posts.filter((item) => Number(item.id) > id).sort((a, b) => Number(a.id) - Number(b.id))[0] ?? null
 ---
 
 <PostsPage
@@ -33,4 +46,6 @@ const channel = {
   pageHeading={post.title || channel.title}
   pageSeo={post}
   pageType="post"
+  prevPost={prevPost}
+  nextPost={nextPost}
 />

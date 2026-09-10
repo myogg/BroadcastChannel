@@ -160,6 +160,8 @@ REACTIONS=true
 RSS_BEAUTIFY=true
 
 ## Tags, links, and navigation (comma / semicolon separated)
+# TAGS pins the /tags page to this list and always shows the Tags nav item.
+# Leave it empty to list every tag found in the channel history instead.
 TAGS=tag1,tag2,tag3
 LINKS=Title1,URL1;Title2,URL2;Title3,URL3;
 NAVS=Title1,URL1;Title2,URL2;Title3,URL3;

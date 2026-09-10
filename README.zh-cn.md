@@ -159,6 +159,8 @@ REACTIONS=true
 RSS_BEAUTIFY=true
 
 ## 标签、链接与导航（英文逗号 / 分号分隔）
+# TAGS 用于固定 /tags 页面的标签清单，并始终显示导航中的 Tags 入口。
+# 留空则改为列出频道历史中出现的全部标签。
 TAGS=标签A,标签B,标签C
 LINKS=Title1,URL1;Title2,URL2;Title3,URL3;
 NAVS=Title1,URL1;Title2,URL2;Title3,URL3;

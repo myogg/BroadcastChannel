@@ -1,15 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import DirectorySection from '../components/DirectorySection.astro'
-import { getChannelInfo } from '../lib/telegram'
+import { getAllTags, getChannelInfo } from '../lib/telegram'
 import { getEnv, parseCsvList } from '../lib/env'
 
 const channel = await getChannelInfo()
 const pageSeo = { title: 'Tags' }
-const items = parseCsvList(getEnv(import.meta.env, 'TAGS')).map((tag) => ({
-  href: `/search/result?q=${encodeURIComponent(`#${tag}`)}`,
-  label: tag,
-}))
+const tagHref = (tag: string): string => `/search/result?q=${encodeURIComponent(`#${tag}`)}`
+
+// A configured TAGS list stays authoritative; otherwise fall back to the tags
+// found across the channel history, which is the same source as the sidebar
+// tag cloud.
+const configuredTags = parseCsvList(getEnv(import.meta.env, 'TAGS'))
+const items = configuredTags.length
+  ? configuredTags.map((tag) => ({ href: tagHref(tag), label: tag }))
+  : [...(await getAllTags()).entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([tag, count]) => ({
+        href: tagHref(tag),
+        label: tag,
+        title: `${count} post${count === 1 ? '' : 's'}`,
+      }))
 ---
 
 <BaseLayout channel={channel} seo={pageSeo} pageType="page">
