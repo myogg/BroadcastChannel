@@ -57,7 +57,7 @@ export function getPageSeo(options: {
     currentPathname,
     hasCustomTitle: Boolean(pageTitle && pageTitle !== siteTitle),
     archivePathname: normalizePathname(new URL('archive', absoluteSiteUrl).pathname),
-    linksPathname: normalizePathname(new URL('links', absoluteSiteUrl).pathname),
+    aboutPathname: normalizePathname(new URL('about', absoluteSiteUrl).pathname),
     seoParams: {
       title: pageTitle,
       description: seoDescription,

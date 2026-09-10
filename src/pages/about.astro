@@ -1,9 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import avatar from '../assets/avatar.jpg'
 import { getChannelInfo } from '../lib/telegram'
 
 const channel = await getChannelInfo()
-const pageSeo = { title: '我的导航' }
+const pageSeo = { title: 'About' }
 
 interface LinkItem {
   label: string
@@ -66,7 +67,29 @@ const groups: LinkGroup[] = [
 
 <BaseLayout channel={channel} seo={pageSeo} pageType="page">
   <div class="nav-page">
-    <h1>我的导航</h1>
+    <h1>About</h1>
+
+    <div class="about-profile">
+      <img
+        class="about-avatar"
+        src={avatar.src}
+        alt={channel.title}
+        width="144"
+        height="144"
+        loading="eager"
+        decoding="async"
+      />
+      <div class="about-intro">
+        <p>如果有人问我：</p>
+        <p>“AI 对你来说有什么意义？”</p>
+        <p>我可能不会说它让我变得多么厉害。</p>
+        <p>因为我并没有变成什么大神。</p>
+        <p>我依然是一个很菜的互联网爱好者。</p>
+        <p>我只是觉得：</p>
+        <p class="about-highlight">«AI 让我一个普通人，也有机会把自己的想法变成现实。»</p>
+      </div>
+    </div>
+
     {
       groups.map((group) => (
         <section class="nav-group">

@@ -47,6 +47,10 @@ const adapterProvider = adapterAliases[requestedProvider] || requestedProvider
 export default defineConfig({
   output: 'server',
   adapter: providers[adapterProvider] || providers.node,
+  // The directory page moved from /links to /about; keep old links working.
+  redirects: {
+    '/links': '/about',
+  },
   integrations: [
     astroIcon(),
   ],

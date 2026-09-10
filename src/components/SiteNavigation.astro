@@ -6,7 +6,7 @@ const {
   channelTitle,
   currentPathname,
   archivePathname,
-  linksPathname,
+  aboutPathname,
   navs = [],
   searchAction,
   googleSearchSite,
@@ -19,7 +19,7 @@ const {
   channelTitle?: string
   currentPathname: string
   archivePathname: string
-  linksPathname: string
+  aboutPathname: string
   navs?: NavItem[]
   searchAction: string
   googleSearchSite?: string
@@ -47,9 +47,9 @@ const primaryNavItems = [
     title: 'Tags',
   },
   showLinks && {
-    href: `${siteUrl}links`,
-    pathname: linksPathname,
-    title: 'Links',
+    href: `${siteUrl}about`,
+    pathname: aboutPathname,
+    title: 'About',
   },
 ].filter((item): item is { href: string; pathname: string; title: string } => Boolean(item))
 ---

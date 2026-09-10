@@ -24,8 +24,8 @@ const twitter = getEnv(import.meta.env, 'TWITTER')
 const {
   currentPathname,
   hasCustomTitle,
+  aboutPathname,
   archivePathname,
-  linksPathname,
   seoParams,
   siteRootPathname,
   siteTitle,
@@ -103,7 +103,7 @@ const skipLinkText = 'Skip to main content'
         channelTitle={channel?.title}
         currentPathname={currentPathname}
         archivePathname={archivePathname}
-        linksPathname={linksPathname}
+        aboutPathname={aboutPathname}
         navs={navs}
         searchAction={searchAction}
         googleSearchSite={GOOGLE_SEARCH_SITE}
