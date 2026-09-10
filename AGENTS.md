@@ -2,7 +2,7 @@
 
 ## Sources
 
-- Treat this file as the maintained repo guide. `CLAUDE.md` is a symlink to this file for Claude Code compatibility.
+- Treat this file as the maintained repo guide. `CLAUDE.md` is a shorter, standalone Claude Code guide that defers to this file for detail.
 - No repo-local `opencode.json`, `.opencode/`, `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md` is present.
 - For any visible UI/design change, read `DESIGN.md` first; implementation tokens live in `src/styles/app/**` and `src/styles/content/**`.
 - Theme provenance and third-party acknowledgements are maintained in `NOTICE.md`.
@@ -16,11 +16,14 @@
 
 ## Stack and commands
 
-- Runtime/tooling: Node `v22`, `pnpm@11.6.0`, Astro `^6.4.6` SSR, Tailwind CSS v4 via `@tailwindcss/vite`, ESLint `^10.4.1` with Antfu + Astro + formatter rules.
+- Runtime/tooling: Node `v22`, `pnpm@11.13.0` (see the note on the local `pnpm` breakage below), Astro `^7.0.9` SSR, Tailwind CSS v4 via `@tailwindcss/vite`, ESLint `^10.7.0` with Antfu + Astro + formatter rules.
 - Install/dev/build: `pnpm install`, `pnpm dev` or `pnpm start` (`astro dev`), `pnpm build`, `pnpm preview`.
-- Cloudflare Workers build: `SERVER_ADAPTER=cloudflare node_modules/.bin/astro build && npx wrangler deploy`. Note: `wrangler deploy` uploads a new version but may not auto-activate it; check `npx wrangler deployments list` and activate the latest version via the Cloudflare Dashboard if needed.
+- Cloudflare Workers build: `SERVER_ADAPTER=cloudflare node_modules/.bin/astro build && npx wrangler deploy --config dist/server/wrangler.json`. `wrangler deploy` uploads a new version but may not auto-activate it; confirm with `npx wrangler deployments list --config dist/server/wrangler.json` and read the **last** entry, which is the newest and must show `(100%)` traffic. Both commands intermittently fail with a Cloudflare API `503`/connection reset — retry once before troubleshooting.
 - Skip git hooks when committing: `SKIP_SIMPLE_GIT_HOOKS=1 git commit` or `git commit --no-verify`. The pre-commit hook runs `lint-staged` which may fail if `pnpm` scripts aren't resolving (known issue with `packages field missing or empty`).
 - Local checks: `pnpm lint`, `pnpm typecheck`, and `pnpm test`; use `pnpm lint:fix` for auto-fix, `npx eslint <path>` for focused lint, and `pnpm vitest run <test-file>` for a focused test.
+- `pnpm` itself may be unusable on a given machine (observed: every `pnpm <script>` and even `pnpm --version` failing with `packages field missing or empty`). Call `node_modules/.bin/<tool>` directly instead; that path always works.
+- No outbound network access to `telegram.dog` or `*.workers.dev` from some environments (observed: `astro dev` raising `FetchError ... TimeoutError` on every page, and `curl` against the deployed worker returning `HTTP 000`). Every page calls `getChannelInfo()` at request time, so under that condition you cannot render the app or inspect the live site locally — verify via lint/typecheck/tests/build, and confirm route, redirect, and asset changes by grepping the built manifest at `dist/server/chunks/entrypoints_*.mjs`, where they are all serialized.
+- `astro dev` runs detached when started this way; its output does not go to the invoking shell. Use `astro dev logs [--follow]`, `astro dev status`, and `astro dev stop`.
 - `postinstall` installs `simple-git-hooks` when `.git` exists; pre-commit runs `lint-staged` with `eslint --fix`.
 - CI does not validate app behavior: `docker.yml` only builds/pushes the GHCR image, and `sync.yml` only syncs forks from upstream (`miantiao-me/BroadcastChannel`).
 
@@ -37,7 +40,7 @@
 - `src/pages/` contains Astro pages and API-style routes; `src/pages/index.astro` is intentionally thin and calls `getChannelInfo()`. Pagination routes are `/before/[cursor]` and `/after/[cursor]`. Content pages: `/about` (requires `LINKS` env; `/links` redirects here), `/tags` (requires `TAGS` env), `/archive` (always available). Search: `/search/result` (SSR page) and `/search/[q]` (API). Feeds/sitemap: `/rss.xml`, `/rss.json`, `/sitemap.xml`, `/sitemap/[cursor].xml`. Other API routes: `/static/[...url]` (proxy), `/rules/prefetch.json`, `/site.webmanifest`.
 - There are two page patterns: **Feed pages** (`index`, `before/[cursor]`, `after/[cursor]`, `search/result`, `posts/[id]`) delegate to `PostsPage.astro` which wraps `BaseLayout` and renders `PostEntry` components. **Standalone pages** (`about`, `tags`, `archive`) wrap `BaseLayout` directly with custom slot content.
 - `src/layouts/BaseLayout.astro` wires global CSS, `astro-seo`, the site header/navigation, the right sidebar (`SiteSidebar` with search form and tag cloud), RSS links, `HEADER_INJECT`, and `FOOTER_INJECT`.
-- Tag extraction happens in `src/lib/telegram/parse.ts` via `rewriteTagLinksAndCollectTags`: it processes Telegram-generated `<a href="?q=...">` tag links, rewrites them to `/search/result?q=...`, and strips `#` from the link text. Tags are stored on each `Post.tags` and aggregated into the sidebar tag cloud in `BaseLayout.astro` (top 50 by frequency, font-size 0.65em–1.5em, font-weight 700). All tag links use the convention `/search/result?q=%23<tag>` (via `getTagHref` in `src/lib/post-ui.ts`). Only Telegram-generated tag links are used as tag sources; plain-text `#hashtag` patterns in the post body are NOT regex-matched to avoid false positives from non-tag `#` characters.
+- Tag extraction happens in `src/lib/telegram/parse.ts` via `rewriteTagLinksAndCollectTags`: it processes Telegram-generated `<a href="?q=...">` tag links, rewrites them to `/search/result?q=...`, and strips `#` from the link text. Tags are stored on each `Post.tags` and aggregated into the sidebar tag cloud in `BaseLayout.astro` (every tag, sorted by frequency; font-size 0.65em–1.5em and colour are scaled against the full count range, so the thresholds shift as the tag set grows). All tag links use the convention `/search/result?q=%23<tag>` (via `getTagHref` in `src/lib/post-ui.ts`). Only Telegram-generated tag links are used as tag sources; plain-text `#hashtag` patterns in the post body are NOT regex-matched to avoid false positives from non-tag `#` characters.
 - `src/middleware.ts` sets `SITE_URL`/`RSS_URL` locals, handles legacy `#tag` search rewrites, and adds speculation/cache headers.
 - Telegram fetching/parsing belongs in `src/lib/telegram/**`; request caching uses `ocache` with 5 min max age and `swr: false` (SWR disabled because detached refresh has no Cloudflare `waitUntil` context). `getChannelInfo()` returns one page of posts and accepts `before`/`after` cursors and `q` search — no date-range filtering.
 - Shared env helpers are in `src/lib/env.ts`; runtime `process.env` wins over build-time `import.meta.env`, and they do not read `Astro.locals.runtime.env`.
